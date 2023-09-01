@@ -1,72 +1,28 @@
-from langchain.vectorstores import FAISS
-from langchain.embeddings import HuggingFaceEmbeddings
-from langchain.document_loaders import PDFMinerLoader
-from utils.openai import OpenAI
+from utils.models import get_llm, get_embedding_model
+from utils.pdf_loader import load_pdf
+from utils.faiss_index import create_faiss_index_from_docs
+from utils.conversation import handle_user_input, get_llm_response
 
-#define llm and embedding model
-llm = OpenAI()
-embedding_model = HuggingFaceEmbeddings(model_name="BAAI/bge-base-en")
-
-# load pdf
-loader = PDFMinerLoader("data/Fronx-Owner Manual-99011M74T01-74E.pdf")
-pages = loader.load_and_split()
-
-# Create embeddings and store the embeddings into faiss vector database
-faiss_index = FAISS.from_documents(pages, embedding_model)
-
-# Initiate a loop for the conversation
+llm = get_llm()
+embedding_model = get_embedding_model()
+pages = load_pdf("data/Fronx-Owner Manual-99011M74T01-74E.pdf")
+faiss_index = create_faiss_index_from_docs(pages, embedding_model)
 message_history = []
 
-while True:
-    # Ask user for their query
-    user_input = input("Ask me something about the car manual: ")
+def chatbot_loop():
+    while True:
+        user_input = input("Ask me something about the car manual: ")
 
-    # If user wants to exit
-    if user_input.lower() in ['exit']:
-        print("Thank you for using the car manual chatbot assistant. Goodbye!")
-        break
+        if user_input.lower() == 'exit':
+            print("Thank you for using the car manual chatbot assistant. Goodbye!")
+            break
 
-    # Search the database for the relevant context
-    docs = faiss_index.similarity_search(user_input, k=2)
+        context = handle_user_input(user_input, faiss_index)
 
-    # Retrieve the embeddings from faiss vector database and create a list of outputs to be used as context
-    outputs = []
-    for doc in docs:
-        output = doc.page_content
+        message_history.append({'role':'user', 'content': user_input})
+        response = get_llm_response(llm, context, message_history)
+        print(response)
+        message_history.append({'role':'assistant', 'content': response})
 
-        outputs.append(output)
-
-    context = '\n\n'.join(outputs)
-
-    print(context)
-
-    # Append the user message to the message history
-    message_history.append({
-        'role':'user',
-        'content': user_input
-    })
-
-    # Get response from llm
-    llm_output = llm.get_response(
-        model='gpt-4',
-        messages=[
-            {"role": "system", "content": f"""
-                You are a car manual chatbot assistant that helps the user to find the information they need from the car manual.
-                Remember that you have a history of the conversation and you can use it to answer the question.
-                Based on the context I will provide, I want you to answer my question.
-                ---start of context---
-                {context}
-                ---end of context---
-            """}
-        ] + message_history, 
-        temperature=0.7
-    )
-
-    response = llm_output.get('choices')[0].get('message').get('content')
-    print(response)
-
-    # Add the system's response to the message history
-    message_history.append({
-        'role':'assistant',
-        'content': response
-    })
+if __name__ == "__main__":
+    chatbot_loop()
