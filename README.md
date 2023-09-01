@@ -1,39 +1,38 @@
 # RAGCarAssistant 🚗🤖
+
 A Car manual chatbot harnessing the power of Retrieval Augmented Generation (RAG).
 
 ## Overview
-`RAGCarAssistant` is designed to provide users with an intuitive way to query car manuals. By leveraging the potential of Retrieval Augmented Generation, our chatbot dynamically fetches and formulates accurate responses from a comprehensive car manual database.
 
-## Features
-- Intuitive and dynamic query processing
-- Rapid response generation
-- Extensive manual database integration
-- Easy-to-navigate interface
+`RAGCarAssistant` is designed to provide users with an intuitive way to query car manuals. By leveraging the potential of Retrieval Augmented Generation, our chatbot dynamically fetches and formulates accurate responses from a comprehensive car manual database.
 
 ## Installation
 
 1. Clone the repository:
-   ```
-   git clone https://github.com/yourusername/RAGCarAssistant.git
-   ```
+
+    ```
+    git clone https://github.com/yourusername/RAGCarAssistant.git
+    ```
 
 2. Navigate into the project directory:
-   ```
-   cd RAGCarAssistant
-   ```
+
+    ```
+    cd RAGCarAssistant
+    ```
 
 3. Install necessary dependencies:
-   ```
-   pip install -r requirements.txt
-   ```
+    ```
+    pip install -r requirements.txt
+    ```
 
 ## Usage
 
 1. Prepare the database using the provided scripts (see the detailed documentation).
 2. Execute the main application:
-   ```
-   python main.py
-   ```
+
+    ```
+    python main.py
+    ```
 
 3. Engage with the chatbot through the displayed interface.
 
