@@ -1,22 +1,22 @@
-from utils.pdf_loader import load_pdf
-from utils.vector_store import create_index_from_docs
 from utils.conversation import CarManualChatbot
 from langchain.embeddings import HuggingFaceEmbeddings
 from utils.openai import OpenAI
+from utils.vector_store import load_index_from_local
 
 llm = OpenAI(
-    model="gpt-4",
+    model="gpt-3.5-turbo-0613",
     temperature=0.7)
-embedding_model = HuggingFaceEmbeddings(model_name="BAAI/bge-large-en")
+embedding_model = HuggingFaceEmbeddings(model_name="BAAI/bge-base-en")
 
-pages = load_pdf("data/Fronx-Owner Manual-99011M74T01-74E.pdf")
-vector_db = create_index_from_docs(pages, embedding_model)
+vector_db = load_index_from_local("faiss_index", embedding_model)
 
-chatbot = CarManualChatbot(llm, vector_db)
+chatbot = CarManualChatbot(llm, vector_db, k=5)
 
 def chatbot_loop():
     while True:
         user_input = input("Ask me something about the car manual: ")
+
+        print(chatbot.get_the_similar_docs(user_input))
 
         if user_input.lower() == 'exit':
             print("Thank you for using the car manual chatbot assistant. Goodbye!")

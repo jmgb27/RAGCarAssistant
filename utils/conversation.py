@@ -1,16 +1,17 @@
 from .vector_store import search_similar_docs
 
 class CarManualChatbot:
-    def __init__(self, llm, vector_db):
+    def __init__(self, llm, vector_db, k:int=5):
         self.llm = llm
         self.vector_db = vector_db
+        self.k = k
         self.message_history:list = []
 
     def get_message_history(self) -> list:
         return self.message_history
 
     def get_the_similar_docs(self, user_input: str) -> str:
-        docs = search_similar_docs(self.vector_db, user_input)
+        docs = search_similar_docs(self.vector_db, user_input, self.k)
         outputs = [doc.page_content for doc in docs]
         context = '\n\n'.join(outputs)
         return context
