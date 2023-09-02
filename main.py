@@ -1,13 +1,18 @@
-from utils.models import get_llm, get_embedding_model
 from utils.pdf_loader import load_pdf
-from utils.faiss_index import create_faiss_index_from_docs
-from utils.conversation import handle_user_input, get_llm_response
+from utils.vector_store import create_index_from_docs
+from utils.conversation import CarManualChatbot
+from langchain.embeddings import HuggingFaceEmbeddings
+from utils.openai import OpenAI
 
-llm = get_llm()
-embedding_model = get_embedding_model()
+llm = OpenAI(
+    model="gpt-4",
+    temperature=0.7)
+embedding_model = HuggingFaceEmbeddings(model_name="BAAI/bge-large-en")
+
 pages = load_pdf("data/Fronx-Owner Manual-99011M74T01-74E.pdf")
-faiss_index = create_faiss_index_from_docs(pages, embedding_model)
-message_history = []
+vector_db = create_index_from_docs(pages, embedding_model)
+
+chatbot = CarManualChatbot(llm, vector_db)
 
 def chatbot_loop():
     while True:
@@ -17,12 +22,9 @@ def chatbot_loop():
             print("Thank you for using the car manual chatbot assistant. Goodbye!")
             break
 
-        context = handle_user_input(user_input, faiss_index)
-
-        message_history.append({'role':'user', 'content': user_input})
-        response = get_llm_response(llm, context, message_history)
+        response = chatbot.get_response(user_input)
         print(response)
-        message_history.append({'role':'assistant', 'content': response})
+
 
 if __name__ == "__main__":
     chatbot_loop()
