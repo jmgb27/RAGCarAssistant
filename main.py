@@ -10,7 +10,7 @@ embedding_model = HuggingFaceEmbeddings(model_name="BAAI/bge-base-en")
 
 vector_db = load_index_from_local("faiss_index", embedding_model)
 
-chatbot = CarManualChatbot(llm, vector_db, k=5)
+chatbot = CarManualChatbot(llm, vector_db)
 
 def chatbot_loop():
     while True:
